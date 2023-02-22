@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/hello';
+import { getProductsById, getProductsList } from '@functions/index';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -9,6 +9,9 @@ const serverlessConfiguration: AWS = {
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
+    profile: 'default',
+    stage: 'dev',
+    region: 'eu-west-1',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -19,7 +22,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { hello },
+  functions: { getProductsById, getProductsList },
   package: { individually: true },
   custom: {
     esbuild: {
