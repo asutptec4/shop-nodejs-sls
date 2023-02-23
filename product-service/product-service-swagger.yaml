@@ -1,0 +1,79 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Game Shop API
+servers:
+  - url: https://fy796phy4m.execute-api.eu-west-1.amazonaws.com/dev
+paths:
+  /products:
+    get:
+      summary: List all products
+      operationId: getProductsList
+      responses:
+        '200':
+          description: An array of products
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Products"
+  /products/{id}:
+    get:
+      summary: Info for a specific product
+      operationId: getProductsById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the product to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - price
+        - count
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        count:
+          type: integer
+    Products:
+      type: array
+      items:
+        $ref: "#/components/schemas/Product"
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
