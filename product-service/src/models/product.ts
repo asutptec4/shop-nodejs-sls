@@ -8,3 +8,4 @@ export type Product = {
 };
 
 export type ProductDto = Product & Omit<Stock, 'product_id'>;
+export type ProductPostBody = Omit<ProductDto, 'id'>; 

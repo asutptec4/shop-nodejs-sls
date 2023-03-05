@@ -8,6 +8,7 @@ import { Stock } from '../../models/stock';
 const dynamoDb = new DynamoDB.DocumentClient();
 
 const getProductsById: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event) => {
+  console.log('getProductsById called with event - ', event);
   const { id } = event.pathParameters;
   let productsResponse, stocksResponse;
   try {

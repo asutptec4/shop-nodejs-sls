@@ -8,7 +8,8 @@ import { Stock } from '../../models/stock';
 const dynamoDb = new DynamoDB.DocumentClient();
 
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-const getProductsList: ValidatedEventAPIGatewayProxyEvent<unknown> = async (_) => {
+const getProductsList: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event) => {
+  console.log('getProductsList called with event - ', event);
   let productsResponse, stocksResponse;
   try {
     productsResponse = await dynamoDb
