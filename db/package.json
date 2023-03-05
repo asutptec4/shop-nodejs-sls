@@ -1,0 +1,21 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "description": "Database fill script",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run seed-db",
+    "seed-db": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-asutp.com:asutptec4/shop-nodejs-sls.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1328.0"
+  }
+}
