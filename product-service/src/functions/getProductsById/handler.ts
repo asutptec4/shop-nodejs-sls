@@ -1,14 +1,36 @@
 import { formatErrorResponse, formatJSONResponse, ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
+import { DynamoDB } from 'aws-sdk';
 
-import PRODUCT_LIST from '../mocks/games.json';
+import { Product } from '../../models/product';
+import { Stock } from '../../models/stock';
+
+const dynamoDb = new DynamoDB.DocumentClient();
 
 const getProductsById: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event) => {
   const { id } = event.pathParameters;
-  const item = PRODUCT_LIST.find((i) => i.id === id);
-  if (item) {
+  let productsResponse, stocksResponse;
+  try {
+    productsResponse = await dynamoDb
+      .get({
+        TableName: process.env.PRODUCT_TABLE,
+        Key: { id },
+      })
+      .promise();
+    stocksResponse = await dynamoDb
+      .get({
+        TableName: process.env.STOCK_TABLE,
+        Key: { product_id: id },
+      })
+      .promise();
+  } catch (error) {
+    console.log(new Date().toISOString(), error.message);
+  }
+  if (productsResponse && stocksResponse) {
+    const product = productsResponse.Item as Product;
+    const stock = productsResponse.Item as Stock;
     return formatJSONResponse({
-      result: item,
+      result: { ...product, count: stock.count },
     });
   } else {
     return formatErrorResponse(404, 'Product not found.');
