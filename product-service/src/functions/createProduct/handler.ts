@@ -4,10 +4,11 @@ import { DynamoDB } from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ProductPostBody } from '../../models/product';
+import schema from './schema';
 
 const dynamoDb = new DynamoDB.DocumentClient();
 
-const createProduct: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event) => {
+const createProduct: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
   console.log('createProduct called with event - ', event);
   const { body } = event;
   let newProduct: ProductPostBody;
@@ -37,19 +38,24 @@ const createProduct: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event)
   };
   try {
     await dynamoDb
-      .put({
-        TableName: process.env.PRODUCT_TABLE,
-        Item: productItem,
+      .transactWrite({
+        TransactItems: [
+          {
+            Put: {
+              TableName: process.env.PRODUCT_TABLE,
+              Item: productItem,
+            },
+          },
+          {
+            Put: {
+              TableName: process.env.STOCK_TABLE,
+              Item: stockItem,
+            },
+          },
+        ],
       })
       .promise();
-    console.log('Success for putting Product');
-    await dynamoDb
-      .put({
-        TableName: process.env.STOCK_TABLE,
-        Item: stockItem,
-      })
-      .promise();
-    console.log('Success for putting Stock');
+    console.log('Success transaction for putting Product and Stock');
   } catch (e) {
     console.log('Error to put items', e.message);
     return formatErrorResponse(500, 'Internal Server Error.');
