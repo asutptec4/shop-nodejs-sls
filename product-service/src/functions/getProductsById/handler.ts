@@ -26,10 +26,11 @@ const getProductsById: ValidatedEventAPIGatewayProxyEvent<unknown> = async (even
       .promise();
   } catch (error) {
     console.log(new Date().toISOString(), error.message);
+    return formatErrorResponse(500, 'Internal Server Error.');
   }
   if (productsResponse && stocksResponse) {
     const product = productsResponse.Item as Product;
-    const stock = productsResponse.Item as Stock;
+    const stock = stocksResponse.Item as Stock;
     return formatJSONResponse({
       result: { ...product, count: stock.count },
     });

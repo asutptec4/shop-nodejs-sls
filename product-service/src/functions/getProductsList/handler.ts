@@ -24,10 +24,11 @@ const getProductsList: ValidatedEventAPIGatewayProxyEvent<unknown> = async (even
       .promise();
   } catch (error) {
     console.log(new Date().toISOString(), error.message);
+    return formatErrorResponse(500, 'Internal Server Error.');
   }
   if (productsResponse && stocksResponse) {
     const products = productsResponse.Items as Product[];
-    const stocks = productsResponse.Items as Stock[];
+    const stocks = stocksResponse.Items as Stock[];
     const result: ProductDto[] = products.map((p: Product) => ({
       ...p,
       count: stocks.find((s) => s.product_id === p.id)?.count,

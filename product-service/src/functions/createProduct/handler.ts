@@ -15,13 +15,14 @@ const createProduct: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   try {
     if (typeof body === 'string') {
       newProduct = JSON.parse(body as string);
+    } else {
+      newProduct = body;
     }
-    newProduct = body as ProductPostBody;
+    if (!newProduct.title || !newProduct.description || !newProduct.price || !newProduct.count) {
+      return formatErrorResponse(400, 'Bad request.');
+    }
   } catch (error) {
     console.log('Fail to parse body', body);
-    return formatErrorResponse(400, 'Bad request.');
-  }
-  if (!newProduct.title || !newProduct.description || !newProduct.price || !newProduct.count) {
     return formatErrorResponse(400, 'Bad request.');
   }
   const productItem = {
