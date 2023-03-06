@@ -1,0 +1,7 @@
+{
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "httpMethod": "POST",
+  "body": "{\"description\":\"Hogwarts Legacy 2 is an immersive, open-world action RPG. Now you can take control of the action and be at the center of your own adventure in the wizarding world.\",\"price\":59.99,\"title\":\"Hogwarts Legacy 2\",\"count\":20}"
+}
