@@ -4,6 +4,7 @@
   "description": "File import service",
   "main": "importFileParser.js",
   "scripts": {
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
