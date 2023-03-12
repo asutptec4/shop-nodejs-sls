@@ -1,0 +1,61 @@
+service: import-service
+
+frameworkVersion: '3'
+
+custom:
+  s3BucketName: game-shop-import-service-file-bucket
+  uploadFolder: uploaded
+  parsedFilesFolder: parsed
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-1
+  stage: dev
+  profile: default
+  httpApi:
+    cors: true
+  environment:
+    FILE_BUCKET_NAME: ${self:custom.s3BucketName}
+    UPLOAD_FOLDER_NAME: ${self:custom.uploadFolder}
+  s3:
+    fileBucket:
+      name: ${self:custom.s3BucketName}
+      corsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - 'PUT'
+            AllowedOrigins:
+              - '*'
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action: 's3:ListBucket'
+          Resource: 'arn:aws:s3:::${self:custom.s3BucketName}'
+        - Effect: 'Allow'
+          Action: 's3:*'
+          Resource: 'arn:aws:s3:::${self:custom.s3BucketName}/*'
+
+functions:
+  importProductsFile:
+    handler: importProductsFile.main
+    events:
+      - httpApi:
+          path: /${self:provider.stage}/import
+          method: get
+    
+  importFileParser:
+    handler: importFileParser.main
+    events:
+      - s3:
+          bucket: fileBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: ${self:custom.uploadFolder}/
+            - suffix: .csv
+    environment:
+      PARSED_FILES_FOLDER_NAME: ${self:custom.parsedFilesFolder}
+
