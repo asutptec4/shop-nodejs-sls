@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import { createProduct, getProductsById, getProductsList } from '@functions/index';
+import { createProduct, deleteProduct, getProductsById, getProductsList } from '@functions/index';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -44,8 +44,7 @@ const serverlessConfiguration: AWS = {
       },
     },
   },
-  // import the function via paths
-  functions: { createProduct, getProductsById, getProductsList },
+  functions: { createProduct, deleteProduct, getProductsById, getProductsList },
   package: { individually: true },
   custom: {
     esbuild: {

@@ -4,6 +4,6 @@ import cors from '@middy/http-cors';
 
 export const middyfy = (handler) => {
   return middy(handler)
-    .use(cors({ methods: 'GET, POST, OPTIONS', credentials: true }))
+    .use(cors({ methods: 'GET, POST, OPTIONS, DELETE', credentials: true }))
     .use(middyJsonBodyParser());
 };
