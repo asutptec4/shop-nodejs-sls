@@ -113,13 +113,20 @@ const serverlessConfiguration: AWS = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'CatalogItemsQueue-${self:provider.stage}',
+          ReceiveMessageWaitTimeSeconds: 20,
         },
       },
     },
     Outputs: {
       CatalogItemsQueueARN: {
-        Description: 'ARN of CatalogItemsQueue queue',
+        Description: 'The ARN of CatalogItemsQueue queue',
         Value: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
+      },
+      CatalogItemsQueueURL: {
+        Description: 'The URL of CatalogItemsQueue queue',
+        Value: {
+          Ref: 'CatalogItemsQueue',
+        },
       },
     },
   },
