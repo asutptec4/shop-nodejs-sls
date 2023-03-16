@@ -41,14 +41,14 @@ provider:
 
 functions:
   importProductsFile:
-    handler: importProductsFile.main
+    handler: import-service.importProductsFile
     events:
       - httpApi:
           path: /${self:provider.stage}/import
           method: get
-    
+
   importFileParser:
-    handler: importFileParser.main
+    handler: import-service.importFileParser
     events:
       - s3:
           bucket: fileBucket
@@ -59,3 +59,8 @@ functions:
     environment:
       PARSED_FILES_FOLDER_NAME: ${self:custom.parsedFilesFolder}
 
+package:
+  patterns:
+    - '!**'
+    - 'import-service.js'
+    - 'package.json'

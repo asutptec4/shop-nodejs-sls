@@ -40,4 +40,4 @@ const copyToParsedFolder = async (fileKey) => {
   }
 };
 
-module.exports.main = importFileParser;
+module.exports = importFileParser;

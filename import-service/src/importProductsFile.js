@@ -24,4 +24,4 @@ const importProductsFile = async (event) => {
   };
 };
 
-module.exports.main = middyfy(importProductsFile);
+module.exports = middyfy(importProductsFile);
