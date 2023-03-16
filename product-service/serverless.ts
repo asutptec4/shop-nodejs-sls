@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import { createProduct, deleteProduct, getProductsById, getProductsList } from '@functions/index';
+import { catalogBatchProcess, createProduct, deleteProduct, getProductsById, getProductsList } from '@functions/index';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -40,11 +40,16 @@ const serverlessConfiguration: AWS = {
               'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.STOCK_TABLE}',
             ],
           },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:*',
+            Resource: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
+          },
         ],
       },
     },
   },
-  functions: { createProduct, deleteProduct, getProductsById, getProductsList },
+  functions: { catalogBatchProcess, createProduct, deleteProduct, getProductsById, getProductsList },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -103,6 +108,18 @@ const serverlessConfiguration: AWS = {
             WriteCapacityUnits: 1,
           },
         },
+      },
+      CatalogItemsQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'CatalogItemsQueue-${self:provider.stage}',
+        },
+      },
+    },
+    Outputs: {
+      CatalogItemsQueueARN: {
+        Description: 'ARN of CatalogItemsQueue queue',
+        Value: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
       },
     },
   },
