@@ -10,6 +10,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@aws-sdk/client-sns": "^3.293.0",
     "@middy/core": "^3.4.0",
     "@middy/http-cors": "^4.2.5",
     "@middy/http-json-body-parser": "^3.4.0",

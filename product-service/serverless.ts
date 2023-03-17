@@ -21,6 +21,8 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       PRODUCT_TABLE: 'products',
       STOCK_TABLE: 'stocks',
+      CREATE_PRODUCT_TOPIC: { 'Fn::GetAtt': ['CreateProductTopic', 'TopicArn'] },
+      MIN_PRICE_FILTER_VALUE: '${self:custom.minPriceValue}',
     },
     iam: {
       role: {
@@ -45,6 +47,11 @@ const serverlessConfiguration: AWS = {
             Action: 'sqs:*',
             Resource: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
           },
+          {
+            Effect: 'Allow',
+            Action: 'sns:*',
+            Resource: { 'Fn::GetAtt': ['CreateProductTopic', 'TopicArn'] },
+          },
         ],
       },
     },
@@ -62,6 +69,7 @@ const serverlessConfiguration: AWS = {
       platform: 'node',
       concurrency: 10,
     },
+    minPriceValue: 10,
   },
   resources: {
     Resources: {
@@ -114,6 +122,30 @@ const serverlessConfiguration: AWS = {
         Properties: {
           QueueName: 'CatalogItemsQueue-${self:provider.stage}',
           ReceiveMessageWaitTimeSeconds: 20,
+        },
+      },
+      CreateProductTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          Subscription: [
+            {
+              Endpoint: 'asutp_tec4@tut.by',
+              Protocol: 'email',
+            },
+          ],
+        },
+      },
+      GoodPriceSubscriber: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          TopicArn: {
+            Ref: 'CreateProductTopic',
+          },
+          Endpoint: 'aliaksandr_shyshonak@epam.com',
+          Protocol: 'email',
+          FilterPolicy: {
+            minPrice: [{ numeric: ['<', '${self:custom.minPriceValue}'] }],
+          },
         },
       },
     },
