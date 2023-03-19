@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import { createProduct, deleteProduct, getProductsById, getProductsList } from '@functions/index';
+import { catalogBatchProcess, createProduct, deleteProduct, getProductsById, getProductsList } from '@functions/index';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -21,6 +21,8 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       PRODUCT_TABLE: 'products',
       STOCK_TABLE: 'stocks',
+      CREATE_PRODUCT_TOPIC: { 'Fn::GetAtt': ['CreateProductTopic', 'TopicArn'] },
+      MIN_PRICE_FILTER_VALUE: '${self:custom.minPriceValue}',
     },
     iam: {
       role: {
@@ -40,11 +42,21 @@ const serverlessConfiguration: AWS = {
               'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.STOCK_TABLE}',
             ],
           },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:*',
+            Resource: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sns:*',
+            Resource: { 'Fn::GetAtt': ['CreateProductTopic', 'TopicArn'] },
+          },
         ],
       },
     },
   },
-  functions: { createProduct, deleteProduct, getProductsById, getProductsList },
+  functions: { catalogBatchProcess, createProduct, deleteProduct, getProductsById, getProductsList },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -57,6 +69,7 @@ const serverlessConfiguration: AWS = {
       platform: 'node',
       concurrency: 10,
     },
+    minPriceValue: 10,
   },
   resources: {
     Resources: {
@@ -102,6 +115,49 @@ const serverlessConfiguration: AWS = {
             ReadCapacityUnits: 1,
             WriteCapacityUnits: 1,
           },
+        },
+      },
+      CatalogItemsQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'CatalogItemsQueue-${self:provider.stage}',
+          ReceiveMessageWaitTimeSeconds: 20,
+        },
+      },
+      CreateProductTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          Subscription: [
+            {
+              Endpoint: 'asutp_tec4@tut.by',
+              Protocol: 'email',
+            },
+          ],
+        },
+      },
+      GoodPriceSubscriber: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          TopicArn: {
+            Ref: 'CreateProductTopic',
+          },
+          Endpoint: 'aliaksandr_shyshonak@epam.com',
+          Protocol: 'email',
+          FilterPolicy: {
+            minPrice: [{ numeric: ['<', '${self:custom.minPriceValue}'] }],
+          },
+        },
+      },
+    },
+    Outputs: {
+      CatalogItemsQueueARN: {
+        Description: 'The ARN of CatalogItemsQueue queue',
+        Value: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
+      },
+      CatalogItemsQueueURL: {
+        Description: 'The URL of CatalogItemsQueue queue',
+        Value: {
+          Ref: 'CatalogItemsQueue',
         },
       },
     },

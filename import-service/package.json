@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.288.0",
+    "@aws-sdk/client-sqs": "^3.293.0",
     "@aws-sdk/s3-request-presigner": "^3.288.0",
     "@middy/core": "^4.2.6",
     "@middy/http-cors": "^4.2.6",
