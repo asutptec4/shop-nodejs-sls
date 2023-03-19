@@ -10,10 +10,10 @@ const importFileParser = async (event) => {
   console.log('importFileParser called with event - ', event);
   const key = event.Records[0].s3.object.key;
   console.log('File key -', key);
-  const importedItems = [];
   try {
     const result = await s3.getObject({ Bucket: process.env.FILE_BUCKET_NAME, Key: key });
     const streamPromise = new Promise((resolve, reject) => {
+      const importedItems = [];
       result.Body.pipe(csv())
         .on('data', (data) => importedItems.push(data))
         .on('error', (e) => {
