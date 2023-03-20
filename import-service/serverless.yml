@@ -7,6 +7,7 @@ custom:
   uploadFolder: uploaded
   parsedFilesFolder: parsed
   productServiceName: product-service-${self:provider.stage}
+  authorizationServiceName: authorization-service-${self:provider.stage}
 
 provider:
   name: aws
@@ -16,6 +17,10 @@ provider:
   profile: default
   httpApi:
     cors: true
+    authorizers:
+      basicAuthorizer:
+        type: request
+        functionArn: ${cf:${self:custom.authorizationServiceName}.BasicAuthorizerARN}
   environment:
     FILE_BUCKET_NAME: ${self:custom.s3BucketName}
     UPLOAD_FOLDER_NAME: ${self:custom.uploadFolder}
@@ -50,6 +55,8 @@ functions:
       - httpApi:
           path: /${self:provider.stage}/import
           method: get
+          authorizer:
+            name: basicAuthorizer
 
   importFileParser:
     handler: import-service.importFileParser
