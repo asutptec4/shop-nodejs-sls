@@ -1,0 +1,22 @@
+{
+  "name": "authorization-service",
+  "version": "1.0.0",
+  "description": "Authorization service for game shop",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-asutp.com:asutptec4/shop-nodejs-sls.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.114",
+    "@types/node": "^18.15.3",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-plugin-typescript": "^2.1.4",
+    "typescript": "^5.0.2"
+  }
+}
