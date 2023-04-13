@@ -1,3 +1,4 @@
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   All,
   Controller,
@@ -6,8 +7,9 @@ import {
   Next,
   Req,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import { AppService } from './app.service';
 
@@ -23,12 +25,19 @@ export class AppController {
     };
   }
 
+  @CacheTTL(2 * 60 * 1000)
+  @UseInterceptors(CacheInterceptor)
+  @Get('api-proxy/products')
+  cachedServe(@Req() req: Request): any {
+    return this.appService.makeGetHttpCall(req);
+  }
+
   @All('api-proxy/*')
   serve(
-    @Req() request: Request,
+    @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
-  ): any {
-    return this.appService.makeCall(request, res, next);
+  ): void {
+    this.appService.processRequest(req, res, next);
   }
 }
