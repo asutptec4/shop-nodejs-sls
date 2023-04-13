@@ -1,5 +1,13 @@
-import { All, Controller, Get, HttpStatus, Req } from '@nestjs/common';
-import { Request } from 'express';
+import {
+  All,
+  Controller,
+  Get,
+  HttpStatus,
+  Next,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
 
 import { AppService } from './app.service';
 
@@ -16,7 +24,11 @@ export class AppController {
   }
 
   @All('api-proxy/*')
-  serve(@Req() request: Request): any {
-    return this.appService.makeCall(request);
+  serve(
+    @Req() request: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ): any {
+    return this.appService.makeCall(request, res, next);
   }
 }

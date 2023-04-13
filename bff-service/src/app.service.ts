@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 @Injectable()
 export class AppService {
-  makeCall(request: Request): any {
-    console.log(request);
-    const url = request.url.split('/')[2];
+  makeCall(request: Request, response: Response, next: NextFunction): any {
+    const url = request.url.split('/')[2].split('?')[0];
     const proxyUrl = process.env[url];
     if (!proxyUrl) {
       throw new HttpException(
@@ -13,10 +13,14 @@ export class AppService {
         HttpStatus.BAD_GATEWAY,
       );
     }
-    // make call
-    return {
-      statusCode: HttpStatus.OK,
-      message: proxyUrl,
-    };
+    return createProxyMiddleware({
+      pathRewrite: function (path) {
+        const parts = path.split('/');
+        parts.splice(1, 1);
+        return parts.join('/');
+      },
+      target: proxyUrl,
+      changeOrigin: true,
+    })(request, response, next);
   }
 }
